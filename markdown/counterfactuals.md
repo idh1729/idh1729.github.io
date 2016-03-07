@@ -11,7 +11,7 @@ This change adds support for counterfactual experiments:
 ### Informant
 The module `DUOCounterfactualTracking.swift` defines an `Informant` class that exposes two methods:
 
-- `getConditionAndTrack(experimentName)`: Returns a string condition for the experiment. If the user is treated for the first time, a non-blocking request is sent over HTTP to update treatment records in the backend.
+- `getConditionAndTreat(experimentName)`: Returns a string condition for the experiment. If the user is treated for the first time, a non-blocking request is sent over HTTP to update treatment records in the backend.
 - `getTrackingProperties()`: Returns a map of experiment tracking properties that can be registered as super properties.
 
 ### Web Manager
@@ -28,6 +28,35 @@ The `DUOAccountManager` module exposes the single method required by a developer
 ### Implementation
 ![Implementation](https://idh1729.github.io/images/ios-counterfactuals-implementation.svg)
 
-## How to Test
+## Testing
+### Debug View
+The developer can inspect the status of the user in each experiment by accessing the test settings view:
+
+![Experiments](https://idh1729.github.io/images/ios-counterfactuals-screens.png)
+
+### Manual QA
+
+- Launch the app when logged in.
+- Use the debug view to treat user in an experiment.
+    - Verify that records were updated in the backend using the [Duolingo API](https://www.duolingo.com/api/1/experiments/references).
+- Sign out, and start a trial account.
+- Use the debug view to verify that previous records were scraped, as this is a new (trial) user.
+- Use the debug view to treat the trial user in an experiment.
+    - Kill app, relaunch, and verify that records are up-to-date using the debug view.
+- Sign out, and sign back in with an existing account.
+- Use the debug view to verify the trial user's records were scraped, and the current user's records were loaded.
+- Use the debug view to treat the user in an experiment they are ineligible for.
+    - Verify that their records were not updated, as the user is ineligible.
+- Sign out, start a trial account, and use the debug view to treat the trial user in an experiment.
+- Proceed to create a profile for the trial user.
+    - Use the debug view to verify that the trial user's records persisted across creating a profile.
+- Insert a `getConditionAndTreat` call when the user enters the Store.
+    - Use the debug view the verify that the user's records were updated.
+    - Use the [Duolingo API](https://www.duolingo.com/api/1/experiments/references) to verify that the user's records were updated in the backend.
+    - Use the debugger to verify that the correct tracking properties are registered.
+- Repeat the same process using a different context in the `getConditionAndTreat`.
+    - Verify that the different contexts are bundled together in the debug view, [Duolingo API](https://www.duolingo.com/api/1/experiments/references), and tracking properties.
+
+
 
 
