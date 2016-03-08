@@ -1,0 +1,38 @@
+/*! normalize.css v3.0.2 | MIT License | git.io/normalize */
+
+body {
+	background-color: white;
+}
+
+.nps-bubble {
+    font-size: 17px;
+    width: 42px;
+    height: 42px;
+    border: 2px solid;
+    border-radius: 20px;
+    text-align: center;
+    line-height: 39px;
+    font-weight: 700;
+}
+
+.nps-title {
+	font-size: 20px;
+	font-weight: 700;
+	text-align: center;
+	position: absolute;
+	color: #4C4C4C;
+}
+
+.nps-dd-first-row .nps-bubble {
+	color: red;
+	margin-right: 7px;
+}
+
+.nps-dd-second-row {
+	margin: 10px 0 0 16px;
+}
+
+.nps-dd-second-row .nps-bubble {
+	color: red;
+	margin-left: 7px;
+}
