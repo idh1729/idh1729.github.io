@@ -17,6 +17,32 @@ app.helpers.get_chronology = function (reverse) {
     if (reverse) return _.range(10, -1, -1);else return _.range(11);
 };
 
+app.helpers.get_score_color = function (item, color_scheme) {
+    var color = void 0;
+    switch (color_scheme) {
+        case 'neutral':
+        default:
+            {
+                color = {
+                    0: '#FF5512',
+                    1: '#E65C13',
+                    2: '#E65C13',
+                    3: '#BF846F',
+                    4: '#9F7B74',
+                    5: '#868389',
+                    6: '#6D8A9F',
+                    7: '#518FB4',
+                    8: '#419FCF',
+                    9: '#10A1E4',
+                    10: '#08ABFF'
+                }[item];
+                break;
+            };
+    }
+    console.log('color', color);
+    return color;
+};
+
 /** Models */
 app.models = {};
 
@@ -73,10 +99,17 @@ app.components.DoubleDeckNPSMeter.controller = function (args) {};
 app.components.DoubleDeckNPSMeter.view = function (ctrl, args) {
     var items = app.helpers.get_chronology(args.variant_data.reverse_chronology);
 
-    var bubble_factory = function bubble_factory(item) {
+    var bubble_factory = function bubble_factory(score) {
+        var is_selected = args.selected_score() === score;
+        var color = app.helpers.get_score_color(score, args.variant_data.color_scheme);
         return m('div.nps-bubble', {
-            onclick: _.bind(args.selected_score, _, item)
-        }, item);
+            onclick: _.bind(args.selected_score, _, score),
+            style: {
+                color: is_selected ? '#FFFFFF' : color,
+                borderColor: color,
+                backgroundColor: is_selected ? color : ''
+            }
+        }, score);
     };
 
     var first_row = m('div.nps-dd-first-row', {
