@@ -6,6 +6,13 @@ var app = {};
 /** Utils */
 app.util = {};
 
+app.util.pixel_to_number = function (pixel) {
+    return parseInt(pixel.slice(0, -2));
+};
+app.util.number_to_pixel = function (number) {
+    return number + 'px';
+};
+
 /** Helpers */
 app.helpers = {};
 
@@ -74,7 +81,10 @@ app.components.NPSControls.view = function (ctrl, args) {
     console.log('ready', ready);
     return m('div', {
         style: {
-            padding: '0 8px'
+            position: 'relative',
+            left: '-50%',
+            marginBottom: '16px',
+            display: 'flex'
         }
     }, [m('button.btn-secondary', {
         style: {
@@ -85,7 +95,7 @@ app.components.NPSControls.view = function (ctrl, args) {
     }, 'skip'), m('button.btn-primary', {
         style: {
             width: '160px',
-            margin: '8px'
+            margin: '0 4px'
         },
         onclick: ctrl.click_submit,
         disabled: !ready
@@ -126,7 +136,8 @@ app.components.DoubleDeckNPSMeter.view = function (ctrl, args) {
 
     return m('div', {
         style: {
-            margin: '0 38px'
+            position: 'relative',
+            left: '-50%'
         }
     }, [first_row, second_row]);
 };
@@ -149,6 +160,7 @@ app.components.DoubleDeckNPS.controller = function (args) {
 app.components.DoubleDeckNPS.view = function (ctrl, args) {
     console.log('ctrl.selected_score()', ctrl.selected_score());
     var l10n = app.constants.l10n;
+    var style = args.style();
 
     var styles = {
         tag: {
@@ -156,7 +168,7 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
             fontSize: '15px',
             position: 'absolute',
             textAlign: 'center',
-            width: args.style.width
+            width: app.util.number_to_pixel(style.width)
         }
     };
 
@@ -167,7 +179,8 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
         }
     }, [m('div.nps-title', {
         style: {
-            top: '21px'
+            paddingTop: '21px',
+            textAlign: 'center'
         }
     }, ctrl.title()), m('div', {
         style: _.extend({}, styles.tag, {
@@ -176,7 +189,8 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
     }, l10n.less_likely.toUpperCase()), m('div', {
         style: {
             position: 'absolute',
-            top: '273px'
+            top: app.util.number_to_pixel(style.height / 2 - 47),
+            left: '50%'
         }
     }, m.component(app.components.DoubleDeckNPSMeter, {
         selected_score: ctrl.selected_score,
@@ -188,26 +202,35 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
     }, l10n.more_likely.toUpperCase()), m('div', {
         style: {
             position: 'absolute',
-            bottom: '0'
+            bottom: '0',
+            left: '50%'
         }
     }, m.component(app.components.NPSControls, {
         click_skip: ctrl.click_skip,
         click_submit: ctrl.click_submit,
-        ready: ctrl.ready
+        ready: ctrl.ready,
+        style: args.style
     }))]);
 };
 
 /** Main app view */
-app.controller = function (args) {};
+app.components.virtualizer = {};
 
-app.view = function (ctrl, args) {
+app.components.virtualizer.controller = function (args) {};
+
+app.components.virtualizer.view = function (ctrl, args) {
     var l10n = app.constants.l10n;
+
+    var _args$style = args.style();
+
+    var width = _args$style.width;
+    var height = _args$style.height;
 
 
     return m('div', {
         style: {
-            width: '360px',
-            height: '640px',
+            width: app.util.number_to_pixel(width),
+            height: app.util.number_to_pixel(height),
             backgroundColor: '#F0F0F0'
         }
     }, [m.component(app.components.DoubleDeckNPS, {
@@ -217,13 +240,60 @@ app.view = function (ctrl, args) {
         },
         click_skip: _.identity,
         click_submit: _.identity,
-        style: {
-            width: '360px'
-        }
+        style: args.style
+    })]);
+};
+
+app.components.selection = {};
+
+app.components.selection.controller = function (args) {
+    this.items = args.items;
+    this.selected_index = args.selected_index;
+};
+
+app.components.selection.view = function (ctrl, args) {
+    return m('div', [_.map(ctrl.items(), function (item, index) {
+        var is_selected = ctrl.selected_index() === index;
+        return m('button', {
+            className: is_selected ? 'btn-primary' : 'btn-secondary',
+            onclick: _.bind(ctrl.selected_index, _, index)
+        }, [
+        // m('input[type=radio]', {
+        //     checked: is_selected,
+        // }),
+        item]);
+    })]);
+};
+
+app.controller = function (args) {
+    var _this2 = this;
+
+    this.style = function () {
+        return {
+            width: _this2.styles()[_this2.selected_style_index()].split(' x ')[0],
+            height: _this2.styles()[_this2.selected_style_index()].split(' x ')[1]
+        };
+    };
+
+    this.selected_style_index = m.prop(1);
+    this.styles = m.prop(['320 x 480', '360 x 640', '360 x 1040', '1280 x 720', '1920 x 1080']);
+};
+
+app.view = function (ctrl, args) {
+    console.log('ctrl.selected_style_index()', ctrl.selected_style_index());
+    return m('div', [m.component(app.components.virtualizer, {
+        style: ctrl.style
+    }), m.component(app.components.selection, {
+        items: ctrl.styles,
+        selected_index: ctrl.selected_style_index
     })]);
 };
 
 /** Main app */
+
+/**
+<label class="radio-label bordered checked"><input type="radio" name="bar" checked=""> Option 2A</label>
+*/
 (function () {
 
     m.mount(document.body, { controller: app.controller, view: app.view });
