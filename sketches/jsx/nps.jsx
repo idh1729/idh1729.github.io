@@ -15,35 +15,85 @@ app.helpers = {};
  * Returns a list of NPS score items.
  * If reverse is true, returns items in reverse order.
  */
-app.helpers.get_chronology = reverse => {
-    if (reverse) return _.range(10, -1, -1);
-    else return _.range(11);
-};
+app.helpers.get_chronology = (() => {
+    const chronology = _.range(11);
+    const reversed_chronology =_.range(10, -1, -1);
 
-app.helpers.get_score_color = (item, color_scheme) => {
-    let color;
-    switch (color_scheme) {
-        case 'neutral':
-        default: {
-            color = {
-                0: '#FF5512',
-                1: '#E65C13',
-                2: '#E65C13',
-                3: '#BF846F',
-                4: '#9F7B74',
-                5: '#868389',
-                6: '#6D8A9F',
-                7: '#518FB4',
-                8: '#419FCF',
-                9: '#10A1E4',
-                10: '#08ABFF',
-            }[item];
-            break;
-        };
-    }
-    console.log('color', color);
-    return color;
-};
+    return reverse => {
+        if (reverse) {
+            return reversed_chronology;
+        }
+
+        return chronology;
+    };
+})();
+
+app.helpers.nps = {};
+
+app.helpers.nps.get_score_color = (() => {
+    const color_schemes = {
+        neutral: {
+            0: '#FF5512',
+            1: '#E65C13',
+            2: '#E65C13',
+            3: '#BF846F',
+            4: '#9F7B74',
+            5: '#868389',
+            6: '#6D8A9F',
+            7: '#518FB4',
+            8: '#419FCF',
+            9: '#10A1E4',
+            10: '#08ABFF',
+        },
+        nps: {
+            0: '#E53838',
+            1: '#E53838',
+            2: '#E53838',
+            3: '#E53838',
+            4: '#E53838',
+            5: '#E53838',
+            6: '#E53838',
+            7: '#FAA918',
+            8: '#FAA918',
+            9: '#7AC70C',
+            10: '#7AC70C',
+        },
+        neutral_reverse: {
+            0: '#08ABFF',
+            1: '#10A1E4',
+            2: '#419FCF',
+            3: '#518FB4',
+            4: '#6D8A9F',
+            5: '#868389',
+            6: '#9F7B74',
+            7: '#BF846F',
+            8: '#E65C13',
+            9: '#E65C13',
+            10: '#FF5512',
+        },
+    };
+
+    return (item, scheme) => {
+        const color_scheme = color_schemes[scheme] || color_schemes.neutral;
+        return color_scheme[item];
+    };
+})();
+
+app.helpers.dashboard = {};
+
+app.helpers.dashboard.dimensions = (() => {
+    const dimensions = [
+        '320 x 480',
+        '360 x 640',
+        '360 x 1040',
+        '1280 x 720',
+        '1920 x 1080',
+    ];
+
+    return {
+        get_dimensions: () => dimensions,
+    };
+})();
 
 /** Models */
 app.models = {};
@@ -100,6 +150,7 @@ app.components.NPSControls.view = function(ctrl, args) {
     ]);
 };
 
+/** Displays the NPS numerals bubbles, i.e. 0, 1, ..., 10, in two horizontal rows. */
 app.components.DoubleDeckNPSMeter = {};
 
 app.components.DoubleDeckNPSMeter.controller = function(args) {
@@ -110,7 +161,7 @@ app.components.DoubleDeckNPSMeter.view = function(ctrl, args) {
 
     const bubble_factory = score => {
         const is_selected = args.selected_score() === score;
-        const color = app.helpers.get_score_color(score, args.variant_data.color_scheme);
+        const color = app.helpers.nps.get_score_color(score, args.variant_data.color_scheme);
         return m('div.nps-bubble', {
             onclick: _.bind(args.selected_score, _, score),
             style: {
@@ -137,12 +188,7 @@ app.components.DoubleDeckNPSMeter.view = function(ctrl, args) {
         _.map(items.slice(6), bubble_factory),
     ]);
 
-    return m('div', {
-        style: {
-            position: 'relative',
-            left: '-50%',
-        },
-    }, [
+    return m('div', [
         first_row,
         second_row,
     ]);
@@ -162,23 +208,20 @@ app.components.DoubleDeckNPS.controller = function(args) {
 app.components.DoubleDeckNPS.view = function(ctrl, args) {
     console.log('ctrl.selected_score()', ctrl.selected_score());
     const l10n = app.constants.l10n;
-    const style = args.style();
 
     const styles = {
         tag: {
             fontWeight: '700',
             fontSize: '15px',
-            position: 'absolute',
             textAlign: 'center',
-            width: app.util.number_to_pixel(style.width),
+            margin: '30px 0',
+        },
+        wrapper: {
         },
     };
 
     return m('div', {
-        style: {
-            position: 'relative',
-            height: '100%',
-        },
+        style: styles.wrapper,
     }, [
         m('div.nps-title', {
             style: {
@@ -186,26 +229,44 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
                 textAlign: 'center',
             },
         }, ctrl.title()),
-        m('div', {
-            style: _.extend({}, styles.tag, {
-                top: '222px',
-            }),
-        }, l10n.less_likely.toUpperCase()),
+        // m('table.centered-table', m('tr', m('td.centered-table-td', [
+
+        // ]))),
         m('div', {
             style: {
                 position: 'absolute',
-                top: app.util.number_to_pixel((style.height / 2) - 47),
                 left: '50%',
+                top: '50%',
             },
-        }, m.component(app.components.DoubleDeckNPSMeter, {
-            selected_score: ctrl.selected_score,
-            variant_data: args.variant_data,
-        })),
-        m('div', {
-            style: _.extend({}, styles.tag, {
-                top: '400px',
-            }),
-        }, l10n.more_likely.toUpperCase()),
+        }, [
+            m('div', {
+                style: {
+                    position: 'relative',
+                    left: '-50%',
+                    marginTop: '-50%',
+                },
+            }, [
+                m('div', {
+                    style: _.extend({}, styles.tag, {
+                    }),
+                }, l10n.less_likely.toUpperCase()),
+                m('div', {
+                    style: {
+                        display: 'table',
+                        margin: '0 auto',
+                    },
+                }, [
+                    m.component(app.components.DoubleDeckNPSMeter, {
+                        selected_score: ctrl.selected_score,
+                        variant_data: args.variant_data,
+                    }),
+                ]),
+                m('div', {
+                    style: _.extend({}, styles.tag, {
+                    }),
+                }, l10n.more_likely.toUpperCase()),
+            ]),
+        ]),
         m('div', {
             style: {
                 position: 'absolute',
@@ -216,12 +277,10 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
             click_skip: ctrl.click_skip,
             click_submit: ctrl.click_submit,
             ready: ctrl.ready,
-            style: args.style,
+            // style: args.style,
         })),
     ]);
 };
-
-
 
 /** Main app view */
 app.components.virtualizer = {};
@@ -231,78 +290,23 @@ app.components.virtualizer.controller = function(args) {
 
 app.components.virtualizer.view = function(ctrl, args) {
     const {l10n} = app.constants;
-    const {width, height} = args.style();
 
-    return m('div', {
-        style: {
-            width: app.util.number_to_pixel(width),
-            height: app.util.number_to_pixel(height),
-            backgroundColor: '#F0F0F0',
+    return m.component(app.components.DoubleDeckNPS, {
+        title: l10n.how_likely,
+        variant_data: {
+            reverse_chronology: false,
+            color_scheme: 'nps',
         },
-    }, [
-        m.component(app.components.DoubleDeckNPS, {
-            title: l10n.how_likely,
-            variant_data: {
-                reverse_chronology: false,
-            },
-            click_skip: _.identity,
-            click_submit: _.identity,
-            style: args.style,
-        })
-    ]);
+        click_skip: _.identity,
+        click_submit: _.identity,
+    });
 };
-
-app.components.selection = {};
-
-app.components.selection.controller = function(args) {
-    this.items = args.items;
-    this.selected_index = args.selected_index;
-};
-
-app.components.selection.view = function(ctrl, args) {
-    return m('div', [
-        _.map(ctrl.items(), (item, index) => {
-            const is_selected = ctrl.selected_index() === index;
-            return m('button', {
-                className: is_selected ? 'btn-primary' : 'btn-secondary',
-                onclick: _.bind(ctrl.selected_index, _, index),
-            }, [
-                // m('input[type=radio]', {
-                //     checked: is_selected,
-                // }),
-                item,
-            ]);
-        }),
-    ]);
-};
-
 
 app.controller = function(args) {
-    this.style = () => {
-        return {
-            width: this.styles()[this.selected_style_index()].split(' x ')[0],
-            height: this.styles()[this.selected_style_index()].split(' x ')[1],
-        };
-    };
-
-    this.selected_style_index = m.prop(1);
-    this.styles = m.prop(['320 x 480', '360 x 640', '360 x 1040', '1280 x 720', '1920 x 1080']);
 };
 
 app.view = function(ctrl, args) {
-    console.log('ctrl.selected_style_index()', ctrl.selected_style_index());
-    return m('div', [
-        m.component(app.components.virtualizer, {
-            style: ctrl.style,
-        }),
-        m.component(app.components.selection, {
-            items: ctrl.styles,
-            selected_index: ctrl.selected_style_index,
-        }),
-        /**
-        <label class="radio-label bordered checked"><input type="radio" name="bar" checked=""> Option 2A</label>
-        */
-    ]);
+    return m.component(app.components.virtualizer, {});
 };
 
 
