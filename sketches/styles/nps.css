@@ -35,6 +35,9 @@ body {
 }
 
 .nps-dd-first-row {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
 }
 
@@ -49,6 +52,9 @@ body {
 
 .nps-dd-second-row {
 	margin: 10px 0 0 16px;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
     display: flex;
 }
 
