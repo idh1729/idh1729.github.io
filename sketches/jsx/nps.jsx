@@ -2,12 +2,6 @@
 /** Main app */
 const app = {};
 
-/** Utils */
-app.util = {};
-
-app.util.pixel_to_number = pixel => parseInt(pixel.slice(0, -2));
-app.util.number_to_pixel = number => number + 'px';
-
 /** Helpers */
 app.helpers = {};
 
@@ -16,16 +10,12 @@ app.helpers = {};
  * If reverse is true, returns items in reverse order.
  */
 app.helpers.get_chronology = (() => {
-    const chronology = _.range(11);
-    const reversed_chronology =_.range(10, -1, -1);
-
-    return reverse => {
-        if (reverse) {
-            return reversed_chronology;
-        }
-
-        return chronology;
+    const chronology = {
+        standard: _.range(11),
+        reversed: _.range(10, -1, -1),
     };
+
+    return type => chronology[type] || chronology.standard;
 })();
 
 app.helpers.nps = {};
@@ -83,9 +73,6 @@ app.helpers.nps.get_score_color = (() => {
 /** Models */
 app.models = {};
 
-/** Singletons */
-app.singletons = {};
-
 /** Constants */
 app.constants = {};
 
@@ -108,23 +95,11 @@ app.components.NPSControls.controller = function(args) {
 
 app.components.NPSControls.view = function(ctrl, args) {
     const ready = ctrl.ready();
-    return m('div', {
-        style: {
-            margin: '0 auto 16px auto',
-        },
-    }, [
-        m('button.btn-secondary', {
-            style: {
-                width: '160px',
-                margin: '0 4px',
-            },
+    return m('div.npscontrols-wrapper', [
+        m('button.btn-secondary.npscontrols-btn', {
             onclick: ctrl.click_skip,
         }, 'skip'),
-        m('button.btn-primary', {
-            style: {
-                width: '160px',
-                margin: '0 4px',
-            },
+        m('button.btn-primary.npscontrols-btn', {
             onclick: ctrl.click_submit,
             disabled: !ready,
         }, 'submit'),
@@ -138,7 +113,7 @@ app.components.DoubleDeckNPSMeter.controller = function(args) {
 };
 
 app.components.DoubleDeckNPSMeter.view = function(ctrl, args) {
-    const items = app.helpers.get_chronology(args.variant_data.reverse_chronology);
+    const items = app.helpers.get_chronology(args.variant_data.chronology);
 
     const bubble_factory = score => {
         const is_selected = args.selected_score() === score;
@@ -153,19 +128,11 @@ app.components.DoubleDeckNPSMeter.view = function(ctrl, args) {
         }, score);
     };
 
-    const first_row = m('div.nps-dd-first-row', {
-        style: {
-            display: 'flex',
-        },
-    }, [
+    const first_row = m('div.nps-dd-first-row', [
         _.map(items.slice(0, 6), bubble_factory),
     ]);
 
-    const second_row = m('div.nps-dd-second-row', {
-        style: {
-            display: 'flex',
-        },
-    }, [
+    const second_row = m('div.nps-dd-second-row', [
         _.map(items.slice(6), bubble_factory),
     ]);
 
@@ -190,71 +157,21 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
     console.log('ctrl.selected_score()', ctrl.selected_score());
     const l10n = app.constants.l10n;
 
-    const styles = {
-        tag: {
-            fontWeight: '700',
-            fontSize: '15px',
-            textAlign: 'center',
-            margin: '30px 0',
-        },
-        wrapper: {
-        },
-    };
-
-    return m('div', {
-        style: styles.wrapper,
-    }, [
-        m('div.nps-title', {
-            style: {
-                paddingTop: '21px',
-                textAlign: 'center',
-            },
-        }, ctrl.title()),
-        m('div', {
-            style: {
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                // width: '100%',
-                // textAlign: 'center',
-            },
-        }, [
-            m('div', {
-                style: {
-                    position: 'relative',
-                    marginTop: '-50%',
-                    left: '-50%',
-                },
-            }, [
-                m('div', {
-                    style: _.extend({}, styles.tag, {
-                    }),
-                }, l10n.less_likely.toUpperCase()),
-                m('div', {
-                    style: {
-                        display: 'table',
-                        margin: '0 auto',
-                    },
-                }, [
+    return m('div', [
+        m('div.nps-title', ctrl.title()),
+        m('div.doubledecknps-wrapper', [
+            m('div.doubledecknps-meter', [
+                m('div.doubledecknps-tag', l10n.less_likely.toUpperCase()),
+                m('div.doubledecknps-meter-inner', [
                     m.component(app.components.DoubleDeckNPSMeter, {
                         selected_score: ctrl.selected_score,
                         variant_data: args.variant_data,
                     }),
                 ]),
-                m('div', {
-                    style: _.extend({}, styles.tag, {
-                    }),
-                }, l10n.more_likely.toUpperCase()),
+                m('div.doubledecknps-tag', l10n.more_likely.toUpperCase()),
             ]),
         ]),
-        m('div', {
-            style: {
-                position: 'absolute',
-                textAlign: 'center',
-                width: '100%',
-                bottom: '0',
-            },
-        }, m.component(app.components.NPSControls, {
+        m('div.doubledecknps-controls', m.component(app.components.NPSControls, {
             click_skip: ctrl.click_skip,
             click_submit: ctrl.click_submit,
             ready: ctrl.ready,
@@ -274,7 +191,7 @@ app.components.virtualizer.view = function(ctrl, args) {
     return m.component(app.components.DoubleDeckNPS, {
         title: l10n.how_likely,
         variant_data: {
-            reverse_chronology: false,
+            chronology: 'reversed',
             color_scheme: 'neutral',
         },
         click_skip: _.identity,
