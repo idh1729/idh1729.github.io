@@ -214,6 +214,7 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
             style: {
                 position: 'absolute',
                 top: '50%',
+                left: '50%',
                 // width: '100%',
                 // textAlign: 'center',
             },
@@ -222,6 +223,7 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
                 style: {
                     position: 'relative',
                     marginTop: '-50%',
+                    left: '-50%',
                 },
             }, [
                 m('div', {

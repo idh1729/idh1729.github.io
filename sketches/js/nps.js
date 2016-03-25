@@ -208,14 +208,16 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
     }, ctrl.title()), m('div', {
         style: {
             position: 'absolute',
-            top: '50%'
+            top: '50%',
+            left: '50%'
         }
     }, // width: '100%',
     // textAlign: 'center',
     [m('div', {
         style: {
             position: 'relative',
-            marginTop: '-50%'
+            marginTop: '-50%',
+            left: '-50%'
         }
     }, [m('div', {
         style: _.extend({}, styles.tag, {})
