@@ -35,6 +35,7 @@ app.helpers.get_chronology = function () {
 
 app.helpers.nps = {};
 
+/** Returns a color for a given item and scheme, e.g. get_score_color(0, 'neutral') === '#FF5512' */
 app.helpers.nps.get_score_color = function () {
     var color_schemes = {
         neutral: {
@@ -84,18 +85,6 @@ app.helpers.nps.get_score_color = function () {
     };
 }();
 
-app.helpers.dashboard = {};
-
-app.helpers.dashboard.dimensions = function () {
-    var dimensions = ['320 x 480', '360 x 640', '360 x 1040', '1280 x 720', '1920 x 1080'];
-
-    return {
-        get_dimensions: function get_dimensions() {
-            return dimensions;
-        }
-    };
-}();
-
 /** Models */
 app.models = {};
 
@@ -124,13 +113,9 @@ app.components.NPSControls.controller = function (args) {
 
 app.components.NPSControls.view = function (ctrl, args) {
     var ready = ctrl.ready();
-    console.log('ready', ready);
     return m('div', {
         style: {
-            position: 'relative',
-            left: '-50%',
-            marginBottom: '16px',
-            display: 'flex'
+            margin: '0 auto 16px auto'
         }
     }, [m('button.btn-secondary', {
         style: {
@@ -220,20 +205,16 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
             paddingTop: '21px',
             textAlign: 'center'
         }
-    }, ctrl.title()),
-    // m('table.centered-table', m('tr', m('td.centered-table-td', [
-
-    // ]))),
-    m('div', {
+    }, ctrl.title()), m('div', {
         style: {
             position: 'absolute',
-            left: '50%',
             top: '50%'
         }
-    }, [m('div', {
+    }, // width: '100%',
+    // textAlign: 'center',
+    [m('div', {
         style: {
             position: 'relative',
-            left: '-50%',
             marginTop: '-50%'
         }
     }, [m('div', {
@@ -251,8 +232,9 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
     }, l10n.more_likely.toUpperCase())])]), m('div', {
         style: {
             position: 'absolute',
-            bottom: '0',
-            left: '50%'
+            textAlign: 'center',
+            width: '100%',
+            bottom: '0'
         }
     }, m.component(app.components.NPSControls, {
         click_skip: ctrl.click_skip,
@@ -262,7 +244,6 @@ app.components.DoubleDeckNPS.view = function (ctrl, args) {
 };
 
 /** Main app view */
-// style: args.style,
 app.components.virtualizer = {};
 
 app.components.virtualizer.controller = function (args) {};
@@ -275,7 +256,7 @@ app.components.virtualizer.view = function (ctrl, args) {
         title: l10n.how_likely,
         variant_data: {
             reverse_chronology: false,
-            color_scheme: 'nps'
+            color_scheme: 'neutral'
         },
         click_skip: _.identity,
         click_submit: _.identity

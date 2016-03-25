@@ -8,15 +8,10 @@
 * {
     box-sizing: border-box;
 }
-
+/*
 body {
 	background-color: #F0F0F0;
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-}
+}*/
 
 .nps-bubble {
     font-size: 17px;
@@ -57,17 +52,4 @@ body {
 
 .nps-dd-second-row :last-child {
     margin-right: 0 !important;
-}
-
-.center {
-    position: relative;
-    display: block;
-    top: 50%;
-    margin-top: -1000px;
-    height: 2000px;
-    text-align: center;
-    line-height: 2000px;
-}
-.center-wrap {
-    line-height: 0;
 }

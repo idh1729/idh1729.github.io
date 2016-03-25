@@ -30,6 +30,7 @@ app.helpers.get_chronology = (() => {
 
 app.helpers.nps = {};
 
+/** Returns a color for a given item and scheme, e.g. get_score_color(0, 'neutral') === '#FF5512' */
 app.helpers.nps.get_score_color = (() => {
     const color_schemes = {
         neutral: {
@@ -79,22 +80,6 @@ app.helpers.nps.get_score_color = (() => {
     };
 })();
 
-app.helpers.dashboard = {};
-
-app.helpers.dashboard.dimensions = (() => {
-    const dimensions = [
-        '320 x 480',
-        '360 x 640',
-        '360 x 1040',
-        '1280 x 720',
-        '1920 x 1080',
-    ];
-
-    return {
-        get_dimensions: () => dimensions,
-    };
-})();
-
 /** Models */
 app.models = {};
 
@@ -123,13 +108,9 @@ app.components.NPSControls.controller = function(args) {
 
 app.components.NPSControls.view = function(ctrl, args) {
     const ready = ctrl.ready();
-    console.log('ready', ready);
     return m('div', {
         style: {
-            position: 'relative',
-            left: '-50%',
-            marginBottom: '16px',
-            display: 'flex',
+            margin: '0 auto 16px auto',
         },
     }, [
         m('button.btn-secondary', {
@@ -229,20 +210,17 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
                 textAlign: 'center',
             },
         }, ctrl.title()),
-        // m('table.centered-table', m('tr', m('td.centered-table-td', [
-
-        // ]))),
         m('div', {
             style: {
                 position: 'absolute',
-                left: '50%',
                 top: '50%',
+                // width: '100%',
+                // textAlign: 'center',
             },
         }, [
             m('div', {
                 style: {
                     position: 'relative',
-                    left: '-50%',
                     marginTop: '-50%',
                 },
             }, [
@@ -270,14 +248,14 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
         m('div', {
             style: {
                 position: 'absolute',
+                textAlign: 'center',
+                width: '100%',
                 bottom: '0',
-                left: '50%',
             },
         }, m.component(app.components.NPSControls, {
             click_skip: ctrl.click_skip,
             click_submit: ctrl.click_submit,
             ready: ctrl.ready,
-            // style: args.style,
         })),
     ]);
 };
@@ -295,7 +273,7 @@ app.components.virtualizer.view = function(ctrl, args) {
         title: l10n.how_likely,
         variant_data: {
             reverse_chronology: false,
-            color_scheme: 'nps',
+            color_scheme: 'neutral',
         },
         click_skip: _.identity,
         click_submit: _.identity,
