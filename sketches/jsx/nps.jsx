@@ -206,7 +206,7 @@ app.components.virtualizer.view = function(ctrl, args) {
     return m.component(app.components.DoubleDeckNPS, {
         title: l10n.how_likely,
         variant_data: {
-            chronology: 'reversed',
+            chronology: 'standard',
             color_scheme: 'neutral',
         },
         click_skip: ctrl.click_skip,
