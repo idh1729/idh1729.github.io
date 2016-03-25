@@ -183,6 +183,21 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
 app.components.virtualizer = {};
 
 app.components.virtualizer.controller = function(args) {
+    this.click_skip = () => {
+        if (Android) {
+            Android.finish();
+        } else {
+            console.log('Android not found');
+        }
+    };
+
+    this.click_submit = () => {
+        if (Android) {
+            Android.showToast("Clicked submit!");
+        } else {
+            console.log('Android not found');
+        }
+    };
 };
 
 app.components.virtualizer.view = function(ctrl, args) {
@@ -194,8 +209,8 @@ app.components.virtualizer.view = function(ctrl, args) {
             chronology: 'reversed',
             color_scheme: 'neutral',
         },
-        click_skip: _.identity,
-        click_submit: _.identity,
+        click_skip: ctrl.click_skip,
+        click_submit: ctrl.click_submit,
     });
 };
 
