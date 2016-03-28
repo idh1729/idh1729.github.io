@@ -18,6 +18,7 @@ body {
     user-select: none;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
 }
 
 input:focus,
@@ -90,16 +91,13 @@ button:focus {
     margin: 0 4px;
 }
 
-.doubledecknps-wrapper {
+.doubledecknps-meter {
     position: absolute;
     top: 50%;
     left: 50%;
-}
-
-.doubledecknps-meter {
-    position: relative;
-    margin-top: -50%;
-    left: -50%;
+    -ms-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
 
 .doubledecknps-meter-inner {
