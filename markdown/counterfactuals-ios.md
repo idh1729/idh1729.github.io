@@ -56,6 +56,10 @@ The developer can inspect the status of the user in each experiment by accessing
     - Use the debugger to verify that the correct tracking properties are registered.
 - Repeat the same process using a different context in the `getConditionAndTreat`.
     - Verify that the different contexts are bundled together in the debug view, [Duolingo API](https://www.duolingo.com/api/1/experiments/references), and tracking properties.
+- Go offline and use the debug menu to treat the user.
+- Go online, sync the user model (you can do this by completing a session).
+    - Verify that the offline treatment is reported to the backend.
+    - Verify that the offline treatment was not overwritten during the user model sync.
 
 
 
