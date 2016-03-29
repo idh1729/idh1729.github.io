@@ -70,6 +70,20 @@ app.helpers.nps.get_score_color = (() => {
     };
 })();
 
+/** Given an NPS chosen number, returns its status. E.g., 9 -> 'promoter' */
+app.helpers.nps.score_to_status = score => {
+    let status;
+    if (score < 7) {
+        status = 'detractor';
+    } else if (score < 9) {
+        status = 'passive';
+    } else {
+        status = 'promoter';
+    }
+
+    return status;
+}
+
 /** Models */
 app.models = {};
 
@@ -146,7 +160,7 @@ app.components.DoubleDeckNPS = {};
 
 app.components.DoubleDeckNPS.controller = function(args) {
     this.title = m.prop(args.title);
-    this.selected_score = m.prop();
+    this.selected_score = args.selected_score || m.prop();
 
     this.ready = () => this.selected_score() !== undefined;
     this.click_skip = args.click_skip;
@@ -154,7 +168,6 @@ app.components.DoubleDeckNPS.controller = function(args) {
 };
 
 app.components.DoubleDeckNPS.view = function(ctrl, args) {
-    console.log('ctrl.selected_score()', ctrl.selected_score());
     const l10n = app.constants.l10n;
 
     return m('div', [
@@ -183,6 +196,8 @@ app.components.DoubleDeckNPS.view = function(ctrl, args) {
 app.components.virtualizer = {};
 
 app.components.virtualizer.controller = function(args) {
+    this.selected_score = m.prop();
+
     this.click_skip = () => {
         if (Android) {
             Android.finish();
@@ -193,7 +208,9 @@ app.components.virtualizer.controller = function(args) {
 
     this.click_submit = () => {
         if (Android) {
-            Android.showToast("Clicked submit!");
+            const status = app.helpers.nps.score_to_status(this.selected_score());
+            const message = `User is a ${status}!`;
+            Android.showToast(message);
         } else {
             console.log('Android not found');
         }
@@ -211,6 +228,7 @@ app.components.virtualizer.view = function(ctrl, args) {
         },
         click_skip: ctrl.click_skip,
         click_submit: ctrl.click_submit,
+        selected_score: ctrl.selected_score,
     });
 };
 
