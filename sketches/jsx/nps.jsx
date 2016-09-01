@@ -207,13 +207,13 @@ app.components.virtualizer.controller = function(args) {
     };
 
     this.click_submit = () => {
-        if (Android) {
-            const status = app.helpers.nps.score_to_status(this.selected_score());
-            const message = `User is a ${status}!`;
-            Android.showToast(message);
-        } else {
-            console.log('Android not found');
+        if (!Android) {
+            console.log('Android global not found');
+            return;
         }
+        const status = app.helpers.nps.score_to_status(this.selected_score());
+        const message = `User is a ${status}!`;
+        Android.showToast(message);
     };
 };
 
