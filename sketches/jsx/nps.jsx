@@ -200,7 +200,7 @@ app.components.virtualizer.controller = function(args) {
 
     this.click_skip = () => {
         if (Android) {
-            Android.finish();
+            Android.finish('payload');
         } else {
             console.log('Android not found');
         }
@@ -213,7 +213,7 @@ app.components.virtualizer.controller = function(args) {
         }
         const status = app.helpers.nps.score_to_status(this.selected_score());
         const message = `User is a ${status}!`;
-        Android.showToast(message);
+        Android.finishWithXp('payload with xp', 3);
     };
 };
 
