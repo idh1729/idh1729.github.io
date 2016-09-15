@@ -211,9 +211,10 @@ app.components.virtualizer.controller = function(args) {
             console.log('Android global not found');
             return;
         }
+        const score = this.selected_score();
         const status = app.helpers.nps.score_to_status(this.selected_score());
         const message = `User is a ${status}!`;
-        Android.finishWithXp('payload with xp', 3);
+        Android.finishWithXp('payload with xp', score);
     };
 };
 
